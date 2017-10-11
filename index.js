@@ -1,23 +1,18 @@
-var Service, Characteristic, UUIDGen;
+var Service, Characteristic;
 
 module.exports = function(homebridge)
 {
 
   console.log("homebridge Egodom API version: " + homebridge.version);
-
   Accessory = homebridge.platformAccessory;
-
   Service = homebridge.hap.Service;
-
   Characteristic = homebridge.hap.Characteristic;
 
-  UUIDGen = homebridge.hap.uuid;
-
-  homebridge.registerAccessory("homebridge-egodom", "Egodom", EgodomAccessory, true);
+  homebridge.registerAccessory("homebridge-egodom", "Egodom", EgodomAccessory);
 
 }
 
-function EgodomAccessory(log, config, api)
+function EgodomAccessory(log, config )
 {
   log("EgodomAccessory");
   log ("name:%s",config.name);
@@ -27,15 +22,32 @@ function EgodomAccessory(log, config, api)
   this.log = log;
   this.config = config;
 
-  //this.service = config["service"] || "Switch";
   
 }
 
-EgodomAccessory.prototype.getServices = function()
+EgodomAccessory.prototype.getPowerOn = function(callback) 
 {
-  return [this.Service];
+  log("EgodomAccessory.prototype.getPowerOn");
+  callback(null, powerOn);
 }
 
+EgodomAccessory.prototype.setPowerOn = function(powerOn, callback) 
+{
+  log("EgodomAccessory.prototype.setPowerOn");
+  callback(null);
+}
+
+EgodomAccessory.prototype.getServices = function() 
+{
+    var EgodomService = new Service.Lightbulb(this.name);
+
+    EgodomService
+      .getCharacteristic(Characteristic.On)
+      .on('get', this.getPowerOn.bind(this))
+      .on('set', this.setPowerOn.bind(this));
+
+    return [EgodomService];
+}
 
 
 
